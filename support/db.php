@@ -672,6 +672,14 @@
 
 				$sql .= " WHERE " . $queryinfo["WHERE"];
 			}
+			else
+			{
+				// Attempt to detect accidental 'WHERE = ...' clauses.
+				foreach ($queryinfo as $key => $val)
+				{
+					if (is_int($key) && is_string($val) && strtoupper(substr($val, 0, 5)) === "WHERE")  return array("success" => false, "error" => CSDB::DB_Translate("UPDATE command appears to have a WHERE in a value instead of a key.  Query blocked to avoid an unintentional change to the entire table.  Did you write 'WHERE something = ...' instead of 'WHERE' => 'something = ...'?"), "errorcode" => "query_blocked_where_clause");
+				}
+			}
 
 			if (isset($supported["ORDER BY"]) && $supported["ORDER BY"] && isset($queryinfo["ORDER BY"]))  $sql .= " ORDER BY " . $queryinfo["ORDER BY"];
 			if (isset($supported["LIMIT"]) && $supported["LIMIT"] !== false && !$subquery && isset($queryinfo["LIMIT"]))
@@ -709,6 +717,14 @@
 				}
 
 				$sql .= " WHERE " . $queryinfo["WHERE"];
+			}
+			else
+			{
+				// Attempt to detect accidental 'WHERE = ...' clauses.
+				foreach ($queryinfo as $key => $val)
+				{
+					if (is_int($key) && is_string($val) && strtoupper(substr($val, 0, 5)) === "WHERE")  return array("success" => false, "error" => CSDB::DB_Translate("DELETE command appears to have a WHERE in a value instead of a key.  Query blocked to avoid an unintentional deletion of all records in the entire table.  Did you write 'WHERE something = ...' instead of 'WHERE' => 'something = ...'?"), "errorcode" => "query_blocked_where_clause");
+				}
 			}
 
 			if (isset($supported["ORDER BY"]) && $supported["ORDER BY"] && isset($queryinfo["ORDER BY"]))  $sql .= " ORDER BY " . $queryinfo["ORDER BY"];
