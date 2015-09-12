@@ -34,7 +34,7 @@
 
 		public function GetDisplayName()
 		{
-			return CSDB::DB_Translate("Oracle (via PDO_OCI)");
+			return CSDB::DB_Translate("Oracle (via PDO) - Early beta");
 		}
 
 		public function Connect($dsn, $username = false, $password = false, $options = array())
