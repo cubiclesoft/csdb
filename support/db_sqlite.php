@@ -297,6 +297,12 @@
 							"PRAGMA journal_mode=MEMORY",
 							"PRAGMA temp_store=MEMORY",
 						);
+
+						$opts = array(
+							array(),
+							array(),
+							array(),
+						);
 					}
 					else
 					{
@@ -304,6 +310,12 @@
 							"PRAGMA synchronous=NORMAL",
 							"PRAGMA journal_mode=DELETE",
 							"PRAGMA temp_store=DEFAULT",
+						);
+
+						$opts = array(
+							array(),
+							array(),
+							array(),
 						);
 					}
 

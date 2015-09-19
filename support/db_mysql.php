@@ -244,6 +244,12 @@
 							"SET unique_checks=0",
 							"SET foreign_key_checks=0",
 						);
+
+						$opts = array(
+							array(),
+							array(),
+							array(),
+						);
 					}
 					else
 					{
@@ -251,6 +257,12 @@
 							"SET autocommit=1",
 							"SET unique_checks=1",
 							"SET foreign_key_checks=1",
+						);
+
+						$opts = array(
+							array(),
+							array(),
+							array(),
 						);
 					}
 
