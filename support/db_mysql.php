@@ -1,6 +1,6 @@
 <?php
 	// CubicleSoft MySQL/Maria DB database interface.
-	// (C) 2013 CubicleSoft.  All Rights Reserved.
+	// (C) 2015 CubicleSoft.  All Rights Reserved.
 
 	if (!class_exists("CSDB"))  exit();
 
@@ -66,7 +66,8 @@
 				{
 					$supported = array(
 						"PREINTO" => array("LOW_PRIORITY" => "bool", "DELAYED" => "bool", "HIGH_PRIORITY" => "bool", "IGNORE" => "bool"),
-						"SELECT" => true
+						"SELECT" => true,
+						"BULKINSERT" => true
 					);
 
 					return $this->ProcessINSERT($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);
@@ -231,6 +232,29 @@
 					$sql = "SHOW CREATE TABLE " . $this->QuoteIdentifier($queryinfo[0]);
 
 					return array("success" => true, "filter_opts" => array("mode" => "SHOW CREATE TABLE", "hints" => (isset($queryinfo["EXPORT HINTS"]) ? $queryinfo["EXPORT HINTS"] : array())));
+				}
+				case "BULK IMPORT MODE":
+				{
+					$master = true;
+
+					if ($queryinfo)
+					{
+						$sql = array(
+							"SET autocommit=0",
+							"SET unique_checks=0",
+							"SET foreign_key_checks=0",
+						);
+					}
+					else
+					{
+						$sql = array(
+							"SET autocommit=1",
+							"SET unique_checks=1",
+							"SET foreign_key_checks=1",
+						);
+					}
+
+					return array("success" => true);
 				}
 			}
 

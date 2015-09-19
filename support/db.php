@@ -1,6 +1,6 @@
 <?php
 	// CubicleSoft generic database base class.
-	// (C) 2014 CubicleSoft.  All Rights Reserved.
+	// (C) 2015 CubicleSoft.  All Rights Reserved.
 
 	class CSDB
 	{
@@ -607,9 +607,30 @@
 						$vals[] = $val;
 					}
 				}
-				$sql .= " (" . implode(", ", $keys) . ") VALUES (" . implode(", ", $vals) . ")";
+				$sql .= " (" . implode(", ", $keys) . ") VALUES ";
+				$origsql = $sql;
+				$sql .= "(" . implode(", ", $vals) . ")";
 
-				if (isset($supported["POSTVALUES"]))
+				// Handle bulk inserts.
+				$bulkinsert = (isset($supported["BULKINSERT"]) && $supported["BULKINSERT"]);
+				if (!$bulkinsert)  $sql = array($sql);
+				for ($x = 3; isset($queryinfo[$x]) && isset($queryinfo[$x + 1]); $x += 2)
+				{
+					$vals = array();
+					foreach ($queryinfo[$x] as $key => $val)
+					{
+						$vals[] = "?";
+						$args[] = $val;
+					}
+
+					// Avoid this if possible.
+					foreach ($queryinfo[$x + 1] as $key => $val)  $vals[] = $val;
+
+					if ($bulkinsert)  $sql .= ", (" . implode(", ", $vals) . "}";
+					else  $sql[] = $origsql . "(" . implode(", ", $vals) . ")";
+				}
+
+				if (isset($supported["POSTVALUES"]) && !isset($queryinfo[3]))
 				{
 					foreach ($supported["POSTVALUES"] as $key => $mode)
 					{
