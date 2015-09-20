@@ -626,7 +626,7 @@
 					// Avoid this if possible.
 					foreach ($queryinfo[$x + 1] as $key => $val)  $vals[] = $val;
 
-					if ($bulkinsert)  $sql .= ", (" . implode(", ", $vals) . "}";
+					if ($bulkinsert)  $sql .= ", (" . implode(", ", $vals) . ")";
 					else  $sql[] = $origsql . "(" . implode(", ", $vals) . ")";
 				}
 
