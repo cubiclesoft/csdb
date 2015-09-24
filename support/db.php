@@ -301,6 +301,7 @@
 				$master = true;
 				$sqls = array((string)$queryinfo);
 				$opts = array($params);
+				$filteropts = false;
 			}
 			else
 			{
