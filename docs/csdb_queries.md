@@ -364,7 +364,7 @@ Example usage for importing a database from a file:
 	fclose($fp);
 
 	// Disable bulk import mode.
-	$db->Query("BULK IMPORT MODE", true);
+	$db->Query("BULK IMPORT MODE", false);
 ?>
 ```
 
