@@ -203,6 +203,171 @@ Not every database supports all index types, especially FULLTEXT indexes.  For i
 
 All indexes should be named with the NAME option.  Some databases require names while others don't.
 
+Generic Database Export/Import
+------------------------------
+
+Each CSDB derived class has the the capability to export the database in a generic format for later import with any CSDB derived class.  This feature enables generic database dumps/backups as well as generic database-to-database transfers without expending a lot of effort.
+
+Example usage for exporting a database to a file:
+
+```php
+<?php
+	if (!isset($_SERVER["argc"]) || !$_SERVER["argc"])
+	{
+		echo "This file is intended to be run from the command-line.";
+
+		exit();
+	}
+
+	// Temporary root.
+	$rootpath = str_replace("\\", "/", dirname(__FILE__));
+
+	require_once $rootpath . "/support/db.php";
+	require_once $rootpath . "/support/db_mysql.php";
+
+	// For databases:  dbname => true
+	// For tables:  dbname.tablename => true (or false to only include the table schema)
+	$exclude = array(
+		"mysql" => true,
+		"information_schema" => true,
+		"performance_schema" => true,
+		"test" => true,
+	);
+
+	try
+	{
+		$db = new CSDB_mysql();
+
+		// MySQL/Maria DB.
+		$db->Connect("mysql:host=127.0.0.1", "username", "*******");
+
+		// Enable large results mode.
+		$db->LargeResults(true);
+	}
+	catch (Exception $e)
+	{
+		echo "Unable to connect to the database.  " . htmlspecialchars($e->getMessage()) . "\n";
+		exit();
+	}
+
+	// Get the list of databases to back up.
+	$databases = array();
+	$result = $db->Query("SHOW DATABASES", array());
+	while ($row = $result->NextRow())
+	{
+		if (!isset($exclude[$row->name]))  $databases[] = $row->name;
+	}
+
+	$fp = fopen("dump.txt", "wb");
+
+	function WriteLine($info)
+	{
+		global $fp;
+
+		fwrite($fp, json_encode($info, JSON_UNESCAPED_SLASHES) . "\n");
+	}
+
+	foreach ($databases as $dbname)
+	{
+		// Generate a DROP DATABASE statement.
+		WriteLine(array("cmd" => "DROP DATABASE", "opts" => array($dbname)));
+
+		// Generate a CREATE DATABASE statement.
+		WriteLine($db->GetRow("SHOW CREATE DATABASE", array($dbname)));
+
+		// Switch to the database.
+		WriteLine(array("cmd" => "USE", "opts" => $dbname));
+
+		$db->Query("USE", $dbname);
+
+		// Get the list of tables in the database to backup.
+		$tables = array();
+		$result = $db->Query("SHOW TABLES", array("FULL" => true));
+		while ($row = $result->NextRow())
+		{
+			if (!isset($exclude[$dbname . "." . $row->name]) || $exclude[$dbname . "." . $row->name])  $tables[] = $row->name;
+		}
+
+		foreach ($tables as $tablename)
+		{
+			// Generate a DROP TABLE statement.
+			WriteLine(array("cmd" => "DROP TABLE", "opts" => array($tablename)));
+
+			// Generate a CREATE TABLE statement.
+			WriteLine($db->GetRow("SHOW CREATE TABLE", array($tablename)));
+
+			if ($exclude[$dbname . "." . $row->name])
+			{
+				// Dump table data.
+				$result = $db->Query("SELECT", array(
+					"*",
+					"FROM" => "?",
+					"EXPORT ROWS" => $tablename
+				), $tablename);
+
+				while ($row = $result->NextRow())
+				{
+					WriteLine(array("cmd" => "INSERT", "opts" => $row));
+				}
+			}
+		}
+	}
+
+	fclose($fp);
+?>
+```
+
+Example usage for importing a database from a file:
+
+```php
+<?php
+	if (!isset($_SERVER["argc"]) || !$_SERVER["argc"])
+	{
+		echo "This file is intended to be run from the command-line.";
+
+		exit();
+	}
+
+	// Temporary root.
+	$rootpath = str_replace("\\", "/", dirname(__FILE__));
+
+	require_once $rootpath . "/support/db.php";
+	require_once $rootpath . "/support/db_sqlite.php";
+
+	try
+	{
+		$db = new CSDB_sqlite();
+
+		// SQLite.
+		$db->Connect("sqlite:/var/path/to/sqlite.db");
+
+		// Enable bulk import mode.
+		$db->Query("BULK IMPORT MODE", true);
+	}
+	catch (Exception $e)
+	{
+		echo "Unable to connect to the database.  " . htmlspecialchars($e->getMessage()) . "\n";
+		exit();
+	}
+
+	$fp = fopen("dump.txt", "rb");
+
+	while (($line = fgets($fp)) !== false)
+	{
+		$info = @json_decode(trim($line), true);
+		if (is_array($info) && isset($info["cmd"] && isset($info["opts"]))
+		{
+			$db->Query($info["cmd"], $info["opts"]);
+		}
+	}
+
+	fclose($fp);
+
+	// Disable bulk import mode.
+	$db->Query("BULK IMPORT MODE", true);
+?>
+```
+
 SELECT Command
 --------------
 
@@ -250,7 +415,7 @@ When the FROM clause contains parameters, the parameters are replaced directly w
 
 Not all databases support the LIMIT keyword.  For those databases, LIMIT is emulated via row filtering.  LIMIT is also ignored when used inside of subqueries.
 
-The EXPORT ROWS option returns rows in a format that is ready for use with the INSERT command.  This is great for being able to create a general-purpose backup solution for any database product or quickly migrate data from one database to another.
+The EXPORT ROWS option returns rows in a format that are ready for use with the INSERT command.  This options allows for being able to create a general-purpose backup solution for any database product or quickly migrate data from one database to another.
 
 INSERT Command
 --------------

@@ -3,7 +3,9 @@ CSDB Data Access Layer
 
 A PHP library that provides a portable, cross-platform, cross-database, lightweight, debuggable, replication-aware, migration-friendly, transaction-capable, [data access layer](http://en.wikipedia.org/wiki/Data_access_layer) (DAL) for PHP.
 
-A collection of useful, lightweight classes intended to be dropped into projects that need database access.  CSDB wraps the PHP [PDO](http://www.php.net/manual/en/book.pdo.php) layer with useful functionality for cross-database web application development.  Minimal dependencies allows for only including the files needed for a project.
+A collection of useful, lightweight classes intended to be dropped into projects that need database access.  CSDB wraps the PHP [PDO](http://www.php.net/manual/en/book.pdo.php) layer with useful functionality for cross-database application development.  Minimal dependencies allows for only including the files needed for a project.
+
+[![Donate](https://cubiclesoft.com/res/donate-shield.png)](https://cubiclesoft.com/donate/)
 
 Features
 --------
