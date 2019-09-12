@@ -137,6 +137,17 @@ Returns:  Nothing.
 
 This function begins a transaction.  If a transaction is already started, the counter is only incremented.
 
+CSDB::NumTransactions()
+-----------------------
+
+Access:  public
+
+Parameters:  None.
+
+Returns:  The current transaction depth.
+
+This function returns the value of the internal counter of started transactions.
+
 CSDB::Commit()
 --------------
 
