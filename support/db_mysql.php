@@ -1,6 +1,6 @@
 <?php
 	// CubicleSoft MySQL/Maria DB database interface.
-	// (C) 2016 CubicleSoft.  All Rights Reserved.
+	// (C) 2020 CubicleSoft.  All Rights Reserved.
 
 	if (!class_exists("CSDB", false))  require_once str_replace("\\", "/", dirname(__FILE__)) . "/db.php";
 
