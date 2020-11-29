@@ -5,7 +5,7 @@ A PHP library that provides a portable, cross-platform, cross-database, lightwei
 
 A collection of useful, lightweight classes intended to be dropped into projects that need database access.  CSDB wraps the PHP [PDO](http://www.php.net/manual/en/book.pdo.php) layer with useful functionality for cross-database application development.  Minimal dependencies allows for only including the files needed for a project.
 
-[![Donate](https://cubiclesoft.com/res/donate-shield.png)](https://cubiclesoft.com/donate/)
+[![Donate](https://cubiclesoft.com/res/donate-shield.png)](https://cubiclesoft.com/donate/) [![Discord](https://img.shields.io/discord/777282089980526602?label=chat&logo=discord)](https://cubiclesoft.com/product-support/github/)
 
 Features
 --------
